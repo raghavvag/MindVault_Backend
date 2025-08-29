@@ -2,7 +2,9 @@ package org.example.rag_system_backend.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.naming.Name;
 import java.time.Instant;
@@ -11,7 +13,8 @@ import java.time.Instant;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-
+@Getter
+@Setter
 public class Querylog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

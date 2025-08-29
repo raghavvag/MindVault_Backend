@@ -1,16 +1,15 @@
 package org.example.rag_system_backend.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.rag_system_backend.models.User;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "documents")
 @AllArgsConstructor
 @NoArgsConstructor
