@@ -12,4 +12,15 @@ public record DocumentDto(
         String status,
         Instant uploadedAt
 ) {
+    public DocumentDto(org.example.rag_system_backend.models.Document document) {
+        this(
+                document.getUuid(),
+                document.getTitle(),
+                document.getFilename(),
+                document.getFileType(),
+                document.getSize(),
+                document.getStatus(),
+                document.getUploadedAt()
+        );
+    }
 }
