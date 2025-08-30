@@ -48,10 +48,13 @@ public class AuthController {
             Optional<UserDto> userDto = authService.login(email, password);
 
             if (userDto.isPresent()) {
-                // Successful login
+                // Successful login - Generate JWT token
                 UserDto user = userDto.get();
+                String jwtToken = jwtProvider.generateToken(user.email(), user.roles());
+
                 Map<String, Object> response = new HashMap<>();
                 response.put("user", user);
+                response.put("token", jwtToken);
                 response.put("message", "Login successful");
                 response.put("status", "success");
 
