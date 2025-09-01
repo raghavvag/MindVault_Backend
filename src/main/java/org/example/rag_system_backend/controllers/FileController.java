@@ -1,6 +1,10 @@
 package org.example.rag_system_backend.controllers;
 
 import io.minio.errors.MinioException;
+import org.example.rag_system_backend.dtos.DocumentDto;
+import org.example.rag_system_backend.models.User;
+import org.example.rag_system_backend.repositories.UserRepository;
+import org.example.rag_system_backend.services.DocumentService;
 import org.example.rag_system_backend.services.FileService;
 import org.example.rag_system_backend.security.JwtProvider;
 import org.springframework.http.HttpStatus;
@@ -17,10 +21,15 @@ public class FileController {
 
     private final FileService fileService;
     private final JwtProvider jwtProvider;
+    private final DocumentService documentService;
+    private final UserRepository userRepository;
 
-    public FileController(FileService fileService, JwtProvider jwtProvider) {
+    public FileController(FileService fileService, JwtProvider jwtProvider,
+                         DocumentService documentService, UserRepository userRepository) {
         this.fileService = fileService;
         this.jwtProvider = jwtProvider;
+        this.documentService = documentService;
+        this.userRepository = userRepository;
     }
 
     // Endpoint to generate presigned URL for file upload
@@ -60,7 +69,10 @@ public class FileController {
     @PostMapping("/upload-complete")
     public ResponseEntity<?> confirmUpload(
             @RequestHeader("Authorization") String authHeader,
-            @RequestParam String filename) {
+            @RequestParam String filename,
+            @RequestParam(required = false) String contentType,
+            @RequestParam(required = false) Long size,
+            @RequestParam(required = false) String metadata) {
         try {
             // Extract JWT token from Authorization header
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -78,16 +90,42 @@ public class FileController {
                 return createErrorResponse("File not found in storage", HttpStatus.BAD_REQUEST);
             }
 
+            // Find user
+            User user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
+
+            // Build metadata JSON (use provided metadata or default)
+            String metadataJson = metadata != null ? metadata : "{\"tags\": [\"uploaded\"]}";
+
+            // Set default values if not provided
+            String fileType = contentType != null ? contentType : "application/octet-stream";
+            Long fileSize = size != null ? size : 0L;
+
+            // Create document record
+            DocumentDto created = documentService.createOnUpload(
+                    user,
+                    filename,
+                    user.getId() + "/" + filename,
+                    fileType,
+                    fileSize,
+                    metadataJson
+            );
+
+            // Return created document UUID to client
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "File upload confirmed");
+            response.put("uuid", created.uuid());
+            response.put("message", "File upload confirmed and document created");
             response.put("userEmail", userEmail);
             response.put("filename", filename);
             response.put("status", "success");
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (MinioException | IOException e) {
             System.err.println("Error confirming upload: " + e.getMessage());
             return createErrorResponse("Error confirming upload: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            System.err.println("Error creating document: " + e.getMessage());
+            return createErrorResponse("Error creating document: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
