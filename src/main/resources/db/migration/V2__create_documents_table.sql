@@ -10,7 +10,7 @@ CREATE TABLE documents (
                            storage_path TEXT NOT NULL,
                            file_type VARCHAR(128),
                            size BIGINT,
-                           status VARCHAR(32) NOT NULL DEFAULT 'UPLOADED',
+                           status VARCHAR(32) NOT NULL DEFAULT 'QUEUED',
                            metadata_json TEXT,
                            uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
                            CONSTRAINT uq_documents_uuid UNIQUE (uuid),

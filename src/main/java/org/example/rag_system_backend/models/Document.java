@@ -18,9 +18,9 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // public UUID used by clients
+    // Let DB handle UUID (via gen_random_uuid())
     @Column(nullable = false, unique = true, updatable = false)
-    private UUID uuid = UUID.randomUUID();
+    private UUID uuid;
 
     // link to user entity (ownership)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -32,16 +32,18 @@ public class Document {
     @Column(nullable = false)
     private String filename;
 
-    @Column(nullable = false)
-    private String storagePath; // e.g., "bucket/user123/file.pdf"
+    @Column(nullable = false, name = "storage_path")
+    private String storagePath;
 
+    @Column(name = "file_type", length = 128)
     private String fileType;
 
     private Long size;
 
-    @Column(nullable = false)
-    private String status = "UPLOADED"; // UPLOADED, QUEUED, INDEXING, READY, FAILED
+    @Column(nullable = false, length = 32)
+    private String status = "QUEUED"; // QUEUED, PROCESSING, READY, FAILED
 
+    @Column(name = "uploaded_at")
     private Instant uploadedAt = Instant.now();
 
     // flexible metadata stored as JSON text (tags, dates, pointers)
