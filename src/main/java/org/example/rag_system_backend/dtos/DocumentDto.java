@@ -1,5 +1,7 @@
 package org.example.rag_system_backend.dtos;
 
+import org.example.rag_system_backend.models.Document;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -10,9 +12,10 @@ public record DocumentDto(
         String fileType,
         Long size,
         String status,
+        String metadataJson,
         Instant uploadedAt
 ) {
-    public DocumentDto(org.example.rag_system_backend.models.Document document) {
+    public DocumentDto(Document document) {
         this(
                 document.getUuid(),
                 document.getTitle(),
@@ -20,6 +23,7 @@ public record DocumentDto(
                 document.getFileType(),
                 document.getSize(),
                 document.getStatus(),
+                document.getMetadataJson(),
                 document.getUploadedAt()
         );
     }

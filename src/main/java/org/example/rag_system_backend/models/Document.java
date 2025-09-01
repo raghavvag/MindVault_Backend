@@ -2,7 +2,6 @@ package org.example.rag_system_backend.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.rag_system_backend.models.User;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -19,9 +18,11 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // public UUID used by clients
     @Column(nullable = false, unique = true, updatable = false)
     private UUID uuid = UUID.randomUUID();
 
+    // link to user entity (ownership)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -32,7 +33,7 @@ public class Document {
     private String filename;
 
     @Column(nullable = false)
-    private String storagePath; // s3://bucket/path
+    private String storagePath; // e.g., "bucket/user123/file.pdf"
 
     private String fileType;
 
@@ -43,6 +44,8 @@ public class Document {
 
     private Instant uploadedAt = Instant.now();
 
+    // flexible metadata stored as JSON text (tags, dates, pointers)
     @Lob
+    @Column(name = "metadata_json")
     private String metadataJson;
 }
