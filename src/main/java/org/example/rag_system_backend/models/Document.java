@@ -19,7 +19,7 @@ public class Document {
     private Long id;
 
     // Let DB handle UUID (via gen_random_uuid())
-    @Column(nullable = false, unique = true, updatable = false)
+    @Column(unique = true, updatable = false)
     private UUID uuid;
 
     // link to user entity (ownership)

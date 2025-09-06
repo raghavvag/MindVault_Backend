@@ -25,7 +25,7 @@ public class FileController {
     private final UserRepository userRepository;
 
     public FileController(FileService fileService, JwtProvider jwtProvider,
-                         DocumentService documentService, UserRepository userRepository) {
+                          DocumentService documentService, UserRepository userRepository) {
         this.fileService = fileService;
         this.jwtProvider = jwtProvider;
         this.documentService = documentService;
